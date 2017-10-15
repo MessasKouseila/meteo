@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">Tp_meteo</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_name">TP_1_Meteo</string>
     <string name="action_add">Add</string>
-    <string name="title_activity_details">DetailsActivity</string>
-    <string name="cityName">City</string>
     <string name="country">Country</string>
     <string name="city">City</string>
     <string name="title_details">Méteo</string>
+    <string name="city_add">Ville</string>
+    <string name="country_add">Pays</string>
+    <string name="title_add_activity">Ajout d\'une ville</string>
 </resources>

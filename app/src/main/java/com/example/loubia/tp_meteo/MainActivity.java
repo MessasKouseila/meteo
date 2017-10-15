@@ -7,7 +7,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,9 +26,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
 
-    private ListView mListView;
     protected List<City> listCity = new ArrayList<City>(256);
     protected ArrayAdapter<City> adapter = null;
+    private ListView mListView;
 
     /**
      * initialisation de la liste des ville de base
@@ -45,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * recupere la liste des villes de base à afficher
+     *
      * @return
      */
     private List<City> getCityPref() {
@@ -52,13 +52,15 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
         Gson gson = new Gson();
         String json = sharedPref.getString("defaultCity", "");
-        Type type = new TypeToken<List<City>>(){}.getType();
+        Type type = new TypeToken<List<City>>() {
+        }.getType();
         List<City> obj = gson.fromJson(json, type);
         return obj;
     }
 
     /**
      * sauvegarde une liste comme liste de ville par default a afficher
+     *
      * @param listOfCity la liste a sauvegarder
      * @return
      */
@@ -133,12 +135,9 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-
-            return true;
-        }
         if (id == R.id.action_add) {
-
+            Intent intent = new Intent(MainActivity.this, AddCityActivity.class);
+            startActivityForResult(intent, 1000);
             return true;
         }
 
@@ -163,4 +162,22 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     }
+
+/*    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        getActivity().invalidateOptionsMenu();
+        if (resultCode == Activity.RESULT_OK) {
+
+            if (data != null) {
+                City a=new City(data.getStringExtra("city"),data.getStringExtra("country"),"/","/","/","/","/");
+                listItems.add(a);
+                adapter.add(a);
+                adapter.notifyDataSetChanged();
+            }
+
+        }
+
+    }*/
+
 }
