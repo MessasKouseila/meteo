@@ -84,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
             this.saveCityPref(this.listCity);
         }
 
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -104,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
                 android.R.layout.simple_list_item_1, listCity);
 
         mListView.setAdapter(adapter);
-
 
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -163,21 +161,18 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-/*    @Override
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        try {
+            super.onActivityResult(requestCode, resultCode, data);
 
-        getActivity().invalidateOptionsMenu();
-        if (resultCode == Activity.RESULT_OK) {
-
-            if (data != null) {
-                City a=new City(data.getStringExtra("city"),data.getStringExtra("country"),"/","/","/","/","/");
-                listItems.add(a);
-                adapter.add(a);
+            if (requestCode == 1000 && resultCode == RESULT_OK) {
+                this.listCity.add((City) data.getSerializableExtra("City"));
                 adapter.notifyDataSetChanged();
             }
-
+        } catch (Exception ex) {
+            Toast.makeText(MainActivity.this, ex.toString(), Toast.LENGTH_SHORT).show();
         }
-
-    }*/
+    }
 
 }
