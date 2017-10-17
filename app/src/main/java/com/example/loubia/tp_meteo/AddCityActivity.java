@@ -23,10 +23,10 @@ public class AddCityActivity extends AppCompatActivity {
         city_add = (EditText) findViewById(R.id.city_add);
         country_add = (EditText) findViewById(R.id.country_add);
         btn = (Button) findViewById(R.id.btn_add);
+
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "button add clicked", Toast.LENGTH_LONG).show();
                 City tmpCity = new City(city_add.getText().toString(), country_add.getText().toString());
                 Intent intent = new Intent();
                 intent.putExtra("City", tmpCity);

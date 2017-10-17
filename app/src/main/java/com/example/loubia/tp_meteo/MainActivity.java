@@ -2,6 +2,7 @@ package com.example.loubia.tp_meteo;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -13,7 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -29,6 +32,10 @@ public class MainActivity extends AppCompatActivity {
     protected List<City> listCity = new ArrayList<City>(256);
     protected ArrayAdapter<City> adapter = null;
     private ListView mListView;
+
+
+    private ProgressBar mProgressBar;
+    private Button mButton;
 
     /**
      * initialisation de la liste des ville de base
@@ -116,6 +123,19 @@ public class MainActivity extends AppCompatActivity {
 
         registerForContextMenu(mListView);
 
+        // On récupère les composants de notre layout
+        mProgressBar = (ProgressBar) findViewById(R.id.pBAsync);
+        mButton = (Button) findViewById(R.id.btnLaunch);
+
+        // On met un Listener sur le bouton
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                Update calcul = new Update();
+                calcul.execute();
+            }
+        });
+
     }
 
     @Override
@@ -168,10 +188,49 @@ public class MainActivity extends AppCompatActivity {
 
             if (requestCode == 1000 && resultCode == RESULT_OK) {
                 this.listCity.add((City) data.getSerializableExtra("City"));
+                this.saveCityPref(this.listCity);
                 adapter.notifyDataSetChanged();
             }
         } catch (Exception ex) {
             Toast.makeText(MainActivity.this, ex.toString(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class Update extends AsyncTask<Void, Integer, Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Toast.makeText(getApplicationContext(), "Début du traitement asynchrone", Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            // Mise à jour de la ProgressBar
+            mProgressBar.setProgress(values[0]);
+        }
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+
+            int progress;
+            for (progress = 0; progress <= 100; progress++) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //la méthode publishProgress met à jour l'interface en invoquant la méthode onProgressUpdate
+                publishProgress(progress);
+                progress++;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            Toast.makeText(getApplicationContext(), "Le traitement asynchrone est terminé", Toast.LENGTH_LONG).show();
+            mProgressBar.invalidate();
         }
     }
 

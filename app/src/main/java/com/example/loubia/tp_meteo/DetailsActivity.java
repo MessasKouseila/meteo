@@ -11,6 +11,14 @@ import android.widget.TextView;
 
 public class DetailsActivity extends AppCompatActivity {
 
+    private TextView ville;
+    private TextView pays;
+    private TextView vent;
+    private TextView direction;
+    private TextView temperature;
+    private TextView pression;
+    private TextView date;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,14 +35,24 @@ public class DetailsActivity extends AppCompatActivity {
             }
         });
 
-        Intent intent = getIntent();
-        TextView city = (TextView) findViewById(R.id.city);
-        TextView country = (TextView) findViewById(R.id.country);
+        ville = (TextView) findViewById(R.id.idVille);
+        pays = (TextView) findViewById(R.id.idPays);
+        vent = (TextView) findViewById(R.id.idVent);
+        direction = (TextView) findViewById(R.id.idDirection);
+        temperature = (TextView) findViewById(R.id.idTempérature);
+        pression = (TextView) findViewById(R.id.idPression);
+        date = (TextView) findViewById(R.id.idDate);
 
+        Intent intent = getIntent();
         if (intent != null) {
-            City tmpCity = (City) intent.getSerializableExtra("City");
-            city.setText(tmpCity.getName());
-            country.setText(tmpCity.getCountry());
+            City _city = (City) intent.getSerializableExtra("City");
+            ville.setText("Ville    " + _city.getName());
+            pays.setText("Pays    " + _city.getCountry());
+            vent.setText("Vent    " + _city.getWindSpeed());
+            direction.setText("Direction    " + _city.getWindDirection());
+            temperature.setText("Température    " + _city.getAirTemperature());
+            pression.setText("Pression    " + _city.getPressure());
+            date.setText("Date  " + _city.getLastReport());
         }
 
     }
