@@ -11,10 +11,10 @@ public class City implements Serializable {
     protected  String name;
     protected String country;
     protected String lastReport;
-    protected Double windSpeed;
+    protected float windSpeed;
     protected String windDirection;
-    protected Double pressure;
-    protected Double airTemperature;
+    protected float pressure;
+    protected float airTemperature;
 
 
 
@@ -55,11 +55,11 @@ public class City implements Serializable {
         this.lastReport = lastReport;
     }
 
-    public Double getWindSpeed() {
+    public float getWindSpeed() {
         return windSpeed;
     }
 
-    public void setWindSpeed(Double windSpeed) {
+    public void setWindSpeed(float windSpeed) {
         this.windSpeed = windSpeed;
     }
 
@@ -71,19 +71,19 @@ public class City implements Serializable {
         this.windDirection = windDirection;
     }
 
-    public Double getPressure() {
+    public float getPressure() {
         return pressure;
     }
 
-    public void setPressure(Double pressure) {
+    public void setPressure(float pressure) {
         this.pressure = pressure;
     }
 
-    public Double getAirTemperature() {
+    public float getAirTemperature() {
         return airTemperature;
     }
 
-    public void setAirTemperature(Double airTemperature) {
+    public void setAirTemperature(float airTemperature) {
         this.airTemperature = airTemperature;
     }
 }

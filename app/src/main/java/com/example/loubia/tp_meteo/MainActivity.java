@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,17 +23,21 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
 
-    protected List<City> listCity = new ArrayList<City>(256);
+    static protected List<City> listCity = new ArrayList<City>(256);
     protected ArrayAdapter<City> adapter = null;
     private ListView mListView;
-
+    private Update updateWeather;
 
     private ProgressBar mProgressBar;
     private Button mButton;
@@ -42,11 +47,11 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initList() {
 
-        this.listCity.add(new City("Brest", "France"));
-        this.listCity.add(new City("Marseille", "France"));
-        this.listCity.add(new City("Montreal", "Canada"));
-        this.listCity.add(new City("Istanbul", "Turkey"));
-        this.listCity.add(new City("Seaoul", "Korea"));
+        listCity.add(new City("Brest", "France"));
+        listCity.add(new City("Marseille", "France"));
+        listCity.add(new City("Montreal", "Canada"));
+        listCity.add(new City("Istanbul", "Turkey"));
+        listCity.add(new City("Seaoul", "Korea"));
     }
 
     /**
@@ -84,11 +89,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        this.listCity = this.getCityPref();
+        listCity = this.getCityPref();
 
-        if (this.listCity.isEmpty()) {
+        if (listCity.isEmpty()) {
             this.initList();
-            this.saveCityPref(this.listCity);
+            this.saveCityPref(listCity);
         }
 
         super.onCreate(savedInstanceState);
@@ -131,8 +136,8 @@ public class MainActivity extends AppCompatActivity {
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                Update calcul = new Update();
-                calcul.execute();
+                updateWeather = new Update(listCity);
+                updateWeather.execute(listCity);
             }
         });
 
@@ -173,8 +178,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (item.getTitle() == "Supprimer") {
             AdapterView.AdapterContextMenuInfo menuinfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-            this.listCity.remove(this.adapter.getItem(menuinfo.position));
-            this.saveCityPref(this.listCity);
+            listCity.remove(this.adapter.getItem(menuinfo.position));
+            this.saveCityPref(listCity);
             this.adapter.notifyDataSetChanged();
             Toast.makeText(getApplicationContext(), "Suppression reussie", Toast.LENGTH_LONG).show();
         }
@@ -187,8 +192,8 @@ public class MainActivity extends AppCompatActivity {
             super.onActivityResult(requestCode, resultCode, data);
 
             if (requestCode == 1000 && resultCode == RESULT_OK) {
-                this.listCity.add((City) data.getSerializableExtra("City"));
-                this.saveCityPref(this.listCity);
+                listCity.add((City) data.getSerializableExtra("City"));
+                this.saveCityPref(listCity);
                 adapter.notifyDataSetChanged();
             }
         } catch (Exception ex) {
@@ -196,7 +201,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class Update extends AsyncTask<Void, Integer, Void> {
+
+    /**
+     *
+     */
+    private class Update extends AsyncTask<List<City>, Integer, String> {
+        private List<City> list;
+        private Update(List<City> list) {
+            this.list = list;
+        }
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -211,27 +224,43 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Void doInBackground(Void... arg0) {
+        protected String doInBackground(List<City>... cities) {
+            int progress = 0;
+            try {
+                JSONResponseHandler jRH = new JSONResponseHandler();
+                String search;
+                String urlText;
+                for(City c : cities[0]) {
+                    search = c.toString();
+                    urlText = "https://query.yahooapis.com/v1/public/yql?q=select * from weather.forecast where woeid in (select woeid from geo.places(1) where text=\""+ search +"\")&format=json&env=store://datatables.org/alltableswithkeys";
+                    URL url = new URL(urlText);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-            int progress;
-            for (progress = 0; progress <= 100; progress++) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    List<String> res = jRH.handleResponse(connection.getInputStream(),null);
+                    Log.d("MainActivity", res.toString());
+                    progress = progress + (100/cities[0].size());
+                    publishProgress(progress);
+
+                    c.setWindSpeed(Float.parseFloat(res.get(0).split(" ")[0]));
+                    c.setWindDirection(res.get(0).split(" ")[1].replace("(", ""));
+                    c.setAirTemperature(Float.parseFloat(res.get(1)));
+                    c.setPressure(Float.parseFloat(res.get(2)));
+                    c.setLastReport(res.get(3));
                 }
-                //la méthode publishProgress met à jour l'interface en invoquant la méthode onProgressUpdate
-                publishProgress(progress);
-                progress++;
+                saveCityPref(MainActivity.listCity);
+
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             return null;
         }
-
         @Override
-        protected void onPostExecute(Void result) {
+        protected void onPostExecute(String result) {
             Toast.makeText(getApplicationContext(), "Le traitement asynchrone est terminé", Toast.LENGTH_LONG).show();
-            mProgressBar.invalidate();
         }
     }
+
 
 }
