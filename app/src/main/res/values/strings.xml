@@ -7,4 +7,5 @@
     <string name="city_add">Ville</string>
     <string name="country_add">Pays</string>
     <string name="title_add_activity">Ajout d\'une ville</string>
+    <string name="action_refresh">refresh</string>
 </resources>

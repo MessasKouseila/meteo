@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -26,6 +24,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     static protected List<City> listCity = new ArrayList<City>(256);
-    protected ArrayAdapter<City> adapter = null;
+    static protected ArrayAdapter<City> adapter = null;
     private ListView mListView;
     private Update updateWeather;
 
@@ -101,16 +100,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
+        mProgressBar = (ProgressBar) findViewById(R.id.pBAsync);
         mListView = (ListView) findViewById(R.id.listView);
+
         adapter = new ArrayAdapter<City>(MainActivity.this,
                 android.R.layout.simple_list_item_1, listCity);
 
@@ -128,18 +120,6 @@ public class MainActivity extends AppCompatActivity {
 
         registerForContextMenu(mListView);
 
-        // On récupère les composants de notre layout
-        mProgressBar = (ProgressBar) findViewById(R.id.pBAsync);
-        mButton = (Button) findViewById(R.id.btnLaunch);
-
-        // On met un Listener sur le bouton
-        mButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                updateWeather = new Update(listCity);
-                updateWeather.execute(listCity);
-            }
-        });
 
     }
 
@@ -163,6 +143,12 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(intent, 1000);
             return true;
         }
+        if (id == R.id.action_refresh) {
+            updateWeather = new Update();
+            updateWeather.execute(MainActivity.listCity);
+            return true;
+        }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -205,15 +191,12 @@ public class MainActivity extends AppCompatActivity {
     /**
      *
      */
-    private class Update extends AsyncTask<List<City>, Integer, String> {
-        private List<City> list;
-        private Update(List<City> list) {
-            this.list = list;
-        }
+    private class Update extends AsyncTask<List<City>, Integer, Void> {
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Toast.makeText(getApplicationContext(), "Début du traitement asynchrone", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Synchronisation en cours ...", Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -224,41 +207,49 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(List<City>... cities) {
+        protected Void doInBackground(List<City>... cities) {
             int progress = 0;
+            List<String> res;
+            String urlText = "";
             try {
-                JSONResponseHandler jRH = new JSONResponseHandler();
-                String search;
-                String urlText;
-                for(City c : cities[0]) {
-                    search = c.toString();
-                    urlText = "https://query.yahooapis.com/v1/public/yql?q=select * from weather.forecast where woeid in (select woeid from geo.places(1) where text=\""+ search +"\")&format=json&env=store://datatables.org/alltableswithkeys";
+                for (City c : cities[0]) {
+                    urlText = "https://query.yahooapis.com/v1/public/yql?q=select * from weather.forecast where woeid in (select woeid from geo.places(1) where text=\"" + c.toString() + "\")&format=json&env=store://datatables.org/alltableswithkeys";
                     URL url = new URL(urlText);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-                    List<String> res = jRH.handleResponse(connection.getInputStream(),null);
-                    Log.d("MainActivity", res.toString());
-                    progress = progress + (100/cities[0].size());
+                    res = new JSONResponseHandler().handleResponse(connection.getInputStream(), null);
+                    // si la ville n'est pas reconnu
+                    if (res.get(0) != null) {
+                        c.setWindSpeed(Float.parseFloat(res.get(0).split(" ")[0]));
+                        c.setWindDirection(res.get(0).split(" ")[1].replace("(", ""));
+                        c.setAirTemperature(Float.parseFloat(res.get(1)));
+                        c.setPressure(Float.parseFloat(res.get(2)));
+                        c.setLastReport(res.get(3));
+                    } else {
+                        // je supprime la ville si elle n'existe pas
+                        MainActivity.listCity.remove(c);
+                    }
+                    progress = progress + (100 / cities[0].size());
                     publishProgress(progress);
-
-                    c.setWindSpeed(Float.parseFloat(res.get(0).split(" ")[0]));
-                    c.setWindDirection(res.get(0).split(" ")[1].replace("(", ""));
-                    c.setAirTemperature(Float.parseFloat(res.get(1)));
-                    c.setPressure(Float.parseFloat(res.get(2)));
-                    c.setLastReport(res.get(3));
                 }
+                // je force la progresse bar a 100%
+                publishProgress(100);
                 saveCityPref(MainActivity.listCity);
 
+            } catch (MalformedURLException e) {
+
             } catch (ProtocolException e) {
-                e.printStackTrace();
+
             } catch (IOException e) {
-                e.printStackTrace();
+
             }
             return null;
         }
+
         @Override
-        protected void onPostExecute(String result) {
-            Toast.makeText(getApplicationContext(), "Le traitement asynchrone est terminé", Toast.LENGTH_LONG).show();
+        protected void onPostExecute(Void result) {
+            Toast.makeText(getApplicationContext(), "Synchronisation Términé", Toast.LENGTH_SHORT).show();
+            // on notify des changement sur la list
+            MainActivity.adapter.notifyDataSetChanged();
         }
     }
 

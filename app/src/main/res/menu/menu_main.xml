@@ -4,7 +4,14 @@
     tools:context="com.example.loubia.tp_meteo.MainActivity">
     <item
         android:id="@+id/action_add"
+        android:icon="@drawable/add"
         android:orderInCategory="99"
         android:title="@string/action_add"
-        app:showAsAction="never" />
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/refresh"
+        android:orderInCategory="99"
+        android:title="@string/action_refresh"
+        app:showAsAction="always" />
 </menu>

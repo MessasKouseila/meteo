@@ -4,6 +4,7 @@ package com.example.loubia.tp_meteo;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.util.JsonReader;
+import android.util.JsonToken;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,7 +60,7 @@ public class JSONResponseHandler {
         while (reader.hasNext()) {
             String name = reader.nextName();
             // Log.d(TAG,"name="+name);
-            if (name.equals("results")) {
+            if (name.equals("results") && reader.peek() != JsonToken.NULL) {
                 readResults(reader);
             } else {
                 reader.skipValue();
