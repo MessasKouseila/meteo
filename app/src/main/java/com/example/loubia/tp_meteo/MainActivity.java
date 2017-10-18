@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void result) {
             Toast.makeText(getApplicationContext(), "Synchronisation Términé", Toast.LENGTH_SHORT).show();
-            // on notify des changement sur la list
+            // on notify des changements sur la list
             MainActivity.adapter.notifyDataSetChanged();
         }
     }
