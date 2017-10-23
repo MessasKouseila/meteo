@@ -8,6 +8,8 @@ import java.io.Serializable;
 
 public class City implements Serializable {
 
+    protected long id;
+
     protected  String name;
     protected String country;
     protected String lastReport;
@@ -15,13 +17,12 @@ public class City implements Serializable {
     protected String windDirection;
     protected float pressure;
     protected float airTemperature;
-
-
-
     @Override
     public String toString() {
         return this.getName() + " (" + this.getCountry() + ")";
     }
+
+
 
     public City() {
     }
@@ -31,9 +32,11 @@ public class City implements Serializable {
         this.country = country;
     }
 
-    public String getName() {
-        return name;
-    }
+    public long getId() { return id; }
+
+    public void setId(long id) { this.id = id; }
+
+    public String getName() { return name; }
 
     public void setName(String name) {
         this.name = name;

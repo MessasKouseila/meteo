@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     static protected List<City> listCity = new ArrayList<City>(256);
     static protected ArrayAdapter<City> adapter = null;
+    static protected CityDAO dataSource;
     private ListView mListView;
     private Update updateWeather;
 
@@ -88,7 +89,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        listCity = this.getCityPref();
+        dataSource = new CityDAO(this);
+        dataSource.open();
+        listCity = dataSource.getAllCity();
+
+        //listCity = this.getCityPref();
 
         if (listCity.isEmpty()) {
             this.initList();
@@ -164,7 +169,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (item.getTitle() == "Supprimer") {
             AdapterView.AdapterContextMenuInfo menuinfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-            listCity.remove(this.adapter.getItem(menuinfo.position));
+            City cityTmp = this.adapter.getItem(menuinfo.position);
+            listCity.remove(cityTmp);
+            dataSource.deleteCity(cityTmp);
             this.saveCityPref(listCity);
             this.adapter.notifyDataSetChanged();
             Toast.makeText(getApplicationContext(), "Suppression reussie", Toast.LENGTH_LONG).show();
@@ -179,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (requestCode == 1000 && resultCode == RESULT_OK) {
                 listCity.add((City) data.getSerializableExtra("City"));
+                dataSource.createCity((City) data.getSerializableExtra("City"));
                 this.saveCityPref(listCity);
                 adapter.notifyDataSetChanged();
             }

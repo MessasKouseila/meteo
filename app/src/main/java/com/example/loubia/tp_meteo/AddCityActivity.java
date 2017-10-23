@@ -27,11 +27,15 @@ public class AddCityActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                City tmpCity = new City(city_add.getText().toString(), country_add.getText().toString());
-                Intent intent = new Intent();
-                intent.putExtra("City", tmpCity);
-                setResult(RESULT_OK, intent);
-                finish();
+                if (!city_add.getText().toString().isEmpty() && !country_add.getText().toString().isEmpty()) {
+                    City tmpCity = new City(city_add.getText().toString(), country_add.getText().toString());
+                    Intent intent = new Intent();
+                    intent.putExtra("City", tmpCity);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Veuillez remplir le formulaire", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
