@@ -35,7 +35,7 @@ public class CityDB extends SQLiteOpenHelper {
             COLUMN_WIND_DIRECTION + " TEXT, " +
             COLUMN_PRESSURE + " TEXT, " +
             COLUMN_AIR_TEMPERATURE + " TEXT, " +
-            " UNIQUE ("+COLUMN_NAME+","+ COLUMN_COUNTRY+") " +
+            "UNIQUE ("+COLUMN_NAME+","+ COLUMN_COUNTRY+") " +
             ");";
 
     public CityDB(Context context) {

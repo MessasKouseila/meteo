@@ -29,10 +29,16 @@ public class AddCityActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!city_add.getText().toString().isEmpty() && !country_add.getText().toString().isEmpty()) {
                     City tmpCity = new City(city_add.getText().toString(), country_add.getText().toString());
-                    Intent intent = new Intent();
-                    intent.putExtra("City", tmpCity);
-                    setResult(RESULT_OK, intent);
-                    finish();
+
+                    if (MainActivity.dataSource.contains(tmpCity)) {
+                        Toast.makeText(getApplicationContext(), "ville existante", Toast.LENGTH_LONG).show();
+                    } else {
+                        Intent intent = new Intent();
+                        intent.putExtra("City", tmpCity);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }
+
                 } else {
                     Toast.makeText(getApplicationContext(), "Veuillez remplir le formulaire", Toast.LENGTH_LONG).show();
                 }

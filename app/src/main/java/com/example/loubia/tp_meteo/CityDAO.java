@@ -13,6 +13,8 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.R.attr.id;
+
 public class CityDAO {
 
     // Champs de la base de données
@@ -53,13 +55,21 @@ public class CityDAO {
 
         return database.insert(CityDB.TABLE_CITY, null, values) > -1;
     }
+    public boolean contains(City city) {
+        Cursor cursor = database.rawQuery("SELECT count(*) FROM "+ CityDB.TABLE_CITY
+                + " WHERE name = '" + city.getName() +"' AND country = '" + city.getCountry() + "'", null);
+        if (cursor.moveToFirst()) {
+            return cursor.getInt(0) > 0;
+        } else {
+            return false;
+        }
+    }
 
     public boolean deleteCity(City city) {
         long id = city.getId();
         return database.delete(CityDB.TABLE_CITY, CityDB.COLUMN_ID
                 + " = " + id, null) > 0;
     }
-    //myDB.update(TableName, cv, "_id="+id, null);
 
     public boolean updateCity(City city) {
 
