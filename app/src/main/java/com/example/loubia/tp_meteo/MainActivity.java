@@ -36,8 +36,9 @@ public class MainActivity extends AppCompatActivity {
     static protected List<City> listCity = new ArrayList<City>(256);
     static protected ArrayAdapter<City> adapter = null;
     static protected CityDAO dataSource;
+
     private ListView mListView;
-    private Update updateWeather;
+    private UpdateInfo updateWeather;
 
     private ProgressBar mProgressBar;
     private Button mButton;
@@ -47,59 +48,28 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initList() {
 
-        listCity.add(new City("Brest", "France"));
-        listCity.add(new City("Marseille", "France"));
-        listCity.add(new City("Montreal", "Canada"));
-        listCity.add(new City("Istanbul", "Turkey"));
-        listCity.add(new City("Seaoul", "Korea"));
-    }
+        dataSource = new CityDAO(this);
+        dataSource.open();
+        listCity = dataSource.getAllCity();
+        if (listCity.isEmpty()) {
 
-    /**
-     * recupere la liste des villes de base à afficher
-     *
-     * @return
-     */
-    private List<City> getCityPref() {
+            listCity.add(new City("Brest", "France"));
+            listCity.add(new City("Marseille", "France"));
+            listCity.add(new City("Montreal", "Canada"));
+            listCity.add(new City("Istanbul", "Turkey"));
+            listCity.add(new City("Seaoul", "Korea"));
 
-        SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
-        Gson gson = new Gson();
-        String json = sharedPref.getString("defaultCity", "");
-        Type type = new TypeToken<List<City>>() {
-        }.getType();
-        List<City> obj = gson.fromJson(json, type);
-        return obj;
-    }
+            for(City c : listCity) {
+                dataSource.insertCity(c);
+            }
+        }
 
-    /**
-     * sauvegarde une liste comme liste de ville par default a afficher
-     *
-     * @param listOfCity la liste a sauvegarder
-     * @return
-     */
-    private boolean saveCityPref(List<City> listOfCity) {
-
-        SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor prefsEditor = sharedPref.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(listOfCity);
-        prefsEditor.putString("defaultCity", json);
-        return prefsEditor.commit();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        dataSource = new CityDAO(this);
-        dataSource.open();
-        listCity = dataSource.getAllCity();
-
-        //listCity = this.getCityPref();
-
-        if (listCity.isEmpty()) {
-            this.initList();
-            this.saveCityPref(listCity);
-        }
-
+        this.initList();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -122,10 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
         registerForContextMenu(mListView);
-
-
     }
 
     @Override
@@ -149,11 +116,10 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         if (id == R.id.action_refresh) {
-            updateWeather = new Update();
+            updateWeather = new UpdateInfo(getApplicationContext(), dataSource, mProgressBar);
             updateWeather.execute(MainActivity.listCity);
             return true;
         }
-
 
         return super.onOptionsItemSelected(item);
     }
@@ -172,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
             City cityTmp = this.adapter.getItem(menuinfo.position);
             listCity.remove(cityTmp);
             dataSource.deleteCity(cityTmp);
-            this.saveCityPref(listCity);
             this.adapter.notifyDataSetChanged();
             Toast.makeText(getApplicationContext(), "Suppression reussie", Toast.LENGTH_LONG).show();
         }
@@ -186,80 +151,12 @@ public class MainActivity extends AppCompatActivity {
 
             if (requestCode == 1000 && resultCode == RESULT_OK) {
                 listCity.add((City) data.getSerializableExtra("City"));
-                dataSource.createCity((City) data.getSerializableExtra("City"));
-                this.saveCityPref(listCity);
+                dataSource.insertCity((City) data.getSerializableExtra("City"));
                 adapter.notifyDataSetChanged();
             }
         } catch (Exception ex) {
             Toast.makeText(MainActivity.this, ex.toString(), Toast.LENGTH_SHORT).show();
         }
     }
-
-
-    /**
-     *
-     */
-    private class Update extends AsyncTask<List<City>, Integer, Void> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            Toast.makeText(getApplicationContext(), "Synchronisation en cours ...", Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-            // Mise à jour de la ProgressBar
-            mProgressBar.setProgress(values[0]);
-        }
-
-        @Override
-        protected Void doInBackground(List<City>... cities) {
-            int progress = 0;
-            List<String> res;
-            String urlText = "";
-            try {
-                for (City c : cities[0]) {
-                    urlText = "https://query.yahooapis.com/v1/public/yql?q=select * from weather.forecast where woeid in (select woeid from geo.places(1) where text=\"" + c.toString() + "\")&format=json&env=store://datatables.org/alltableswithkeys";
-                    URL url = new URL(urlText);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    res = new JSONResponseHandler().handleResponse(connection.getInputStream(), null);
-                    // si la ville n'est pas reconnu
-                    if (res.get(0) != null) {
-                        c.setWindSpeed(Float.parseFloat(res.get(0).split(" ")[0]));
-                        c.setWindDirection(res.get(0).split(" ")[1].replace("(", ""));
-                        c.setAirTemperature(Float.parseFloat(res.get(1)));
-                        c.setPressure(Float.parseFloat(res.get(2)));
-                        c.setLastReport(res.get(3));
-                    } else {
-                        // je supprime la ville si elle n'existe pas
-                        MainActivity.listCity.remove(c);
-                    }
-                    progress = progress + (100 / cities[0].size());
-                    publishProgress(progress);
-                }
-                // je force la progresse bar a 100%
-                publishProgress(100);
-                saveCityPref(MainActivity.listCity);
-
-            } catch (MalformedURLException e) {
-
-            } catch (ProtocolException e) {
-
-            } catch (IOException e) {
-
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            Toast.makeText(getApplicationContext(), "Synchronisation Términé", Toast.LENGTH_SHORT).show();
-            // on notify des changements sur la list
-            MainActivity.adapter.notifyDataSetChanged();
-        }
-    }
-
 
 }

@@ -41,7 +41,7 @@ public class CityDAO {
         dbHelper.close();
     }
 
-    public long createCity(City city) {
+    public boolean insertCity(City city) {
 
         ContentValues values = new ContentValues();
         values.put(CityDB.COLUMN_NAME, city.getName());
@@ -51,29 +51,31 @@ public class CityDAO {
         values.put(CityDB.COLUMN_WIND_DIRECTION, city.getWindDirection());
         values.put(CityDB.COLUMN_AIR_TEMPERATURE, city.getAirTemperature());
 
-        long insertId = database.insert(CityDB.TABLE_CITY, null,
-                values);
-/*
-        Cursor cursor = database.query(CityDB.TABLE_CITY,
-                allColumns, CityDB.COLUMN_ID + " = " + insertId, null,
-                null, null, null);
-        cursor.moveToFirst();
-        City newCity = cursorToCity(cursor);
-        cursor.close();
-*/
-        return insertId;
-
+        return database.insert(CityDB.TABLE_CITY, null, values) > -1;
     }
 
-    public void deleteCity(City city) {
+    public boolean deleteCity(City city) {
         long id = city.getId();
-        System.out.println("City deleted with id: " + id);
-        database.delete(CityDB.TABLE_CITY, CityDB.COLUMN_ID
-                + " = " + id, null);
+        return database.delete(CityDB.TABLE_CITY, CityDB.COLUMN_ID
+                + " = " + id, null) > 0;
+    }
+    //myDB.update(TableName, cv, "_id="+id, null);
+
+    public boolean updateCity(City city) {
+
+        ContentValues values = new ContentValues();
+        values.put(CityDB.COLUMN_NAME, city.getName());
+        values.put(CityDB.COLUMN_COUNTRY, city.getCountry());
+        values.put(CityDB.COLUMN_LAST_REPORT, city.getLastReport());
+        values.put(CityDB.COLUMN_WIND_SPEED, city.getWindSpeed());
+        values.put(CityDB.COLUMN_WIND_DIRECTION, city.getWindDirection());
+        values.put(CityDB.COLUMN_AIR_TEMPERATURE, city.getAirTemperature());
+
+        return database.update(CityDB.TABLE_CITY, values, "_id=" + city.getId(), null) > 0 ;
     }
 
     public List<City> getAllCity() {
-        List<City> citys = new ArrayList<City>(256);
+        List<City> citys = new ArrayList<City>();
 
         Cursor cursor = database.query(CityDB.TABLE_CITY,
                 allColumns, null, null, null, null, null);
