@@ -1,4 +1,4 @@
-package activity;
+package main.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
-import model.City;
+import main.model.City;
 import com.example.loubia.tp_meteo.R;
 
 public class DetailsActivity extends AppCompatActivity {

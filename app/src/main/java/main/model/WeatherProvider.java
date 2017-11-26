@@ -1,4 +1,4 @@
-package model;
+package main.model;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -30,8 +30,8 @@ public class WeatherProvider extends ContentProvider {
     //
     static {
         membreMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        membreMatcher.addURI(AUTHORITY, "city", DIR);
-        membreMatcher.addURI(AUTHORITY, "city/#", ITEM);
+        membreMatcher.addURI(AUTHORITY, PATH_TO_DATA, DIR);
+        membreMatcher.addURI(AUTHORITY, PATH_TO_DATA + "/*/*", ITEM);
     }
 
     private CityDB dbOpenHelper;

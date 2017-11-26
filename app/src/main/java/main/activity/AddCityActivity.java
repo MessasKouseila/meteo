@@ -1,4 +1,4 @@
-package activity;
+package main.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import model.City;
+import main.model.City;
 import com.example.loubia.tp_meteo.R;
 
 public class AddCityActivity extends AppCompatActivity {
@@ -32,16 +32,10 @@ public class AddCityActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!city_add.getText().toString().isEmpty() && !country_add.getText().toString().isEmpty()) {
                     City tmpCity = new City(city_add.getText().toString(), country_add.getText().toString());
-
-                    if (MainActivity.dataSource.contains(tmpCity)) {
-                        Toast.makeText(getApplicationContext(), "ville existante", Toast.LENGTH_LONG).show();
-                    } else {
-                        Intent intent = new Intent();
-                        intent.putExtra("City", tmpCity);
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }
-
+                    Intent intent = new Intent();
+                    intent.putExtra("City", tmpCity);
+                    setResult(RESULT_OK, intent);
+                    finish();
                 } else {
                     Toast.makeText(getApplicationContext(), "Veuillez remplir le formulaire", Toast.LENGTH_LONG).show();
                 }

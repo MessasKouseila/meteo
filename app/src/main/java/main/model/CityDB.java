@@ -1,4 +1,4 @@
-package model;
+package main.model;
 
 /**
  * Created by loubia on 22/10/17.
@@ -8,6 +8,9 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CityDB extends SQLiteOpenHelper {
 
@@ -21,8 +24,10 @@ public class CityDB extends SQLiteOpenHelper {
     public static final String COLUMN_PRESSURE = "pressure";
     public static final String COLUMN_AIR_TEMPERATURE = "air_temperature";
 
+
     private static final String DATABASE_NAME = "city.db";
     private static final int DATABASE_VERSION = 1;
+    private List<City> listCity = new ArrayList<City>(128);
 
     // Commande sql pour la création de la base de données
     private static final String DATABASE_CREATE = " CREATE TABLE "
@@ -42,9 +47,23 @@ public class CityDB extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    private void initList() {
+        listCity.add(new City("Brest", "France"));
+        listCity.add(new City("Marseille", "France"));
+        listCity.add(new City("Montreal", "Canada"));
+        listCity.add(new City("Istanbul", "Turkey"));
+        listCity.add(new City("Seaoul", "Korea"));
+    }
+
+
     @Override
     public void onCreate(SQLiteDatabase database) {
+        initList();
         database.execSQL(DATABASE_CREATE);
+        for (City city : listCity) {
+            database.insert(TABLE_NAME, null, city.getContent());
+        }
+
     }
 
     @Override
@@ -55,4 +74,16 @@ public class CityDB extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         onCreate(db);
     }
+    public static final String sortOrder = CityDB.COLUMN_NAME+ " ASC";
+
+    public static final String[] projection = {
+            CityDB.COLUMN_ID,
+            CityDB.COLUMN_COUNTRY,
+            CityDB.COLUMN_NAME,
+            CityDB.COLUMN_WIND_SPEED,
+            CityDB.COLUMN_AIR_TEMPERATURE,
+            CityDB.COLUMN_PRESSURE,
+            CityDB.COLUMN_LAST_REPORT,
+            CityDB.COLUMN_WIND_DIRECTION
+    };
 }

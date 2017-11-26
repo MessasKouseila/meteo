@@ -1,4 +1,4 @@
-package task;
+package main.taskSync;
 
 
 import android.annotation.TargetApi;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Process the response to a GET request to the Web service
+ * Process the response to a GET request to the Web main.service
  * query.yahooapis.com/v1/public/yql
  * Responses must be provided in JSON.
  *
@@ -28,7 +28,7 @@ public class JSONResponseHandler {
     private ArrayList<String> mRes;
 
     /**
-     * @param response done by the Web service
+     * @param response done by the Web main.service
      * @param encoding of the response
      * @return A list of four Strings (wind, temperature, pressure, time) if response was
      * successfully analyzed; a void list otherwise
