@@ -1,4 +1,4 @@
-package com.example.loubia.tp_meteo;
+package model;
 
 import java.io.Serializable;
 

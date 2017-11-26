@@ -1,4 +1,4 @@
-package com.example.loubia.tp_meteo;
+package model;
 
 /**
  * Created by loubia on 22/10/17.
@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class CityDB extends SQLiteOpenHelper {
 
-    public static final String TABLE_CITY = "city";
+    public static final String TABLE_NAME = "city";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_COUNTRY = "country";
@@ -26,7 +26,7 @@ public class CityDB extends SQLiteOpenHelper {
 
     // Commande sql pour la création de la base de données
     private static final String DATABASE_CREATE = " CREATE TABLE "
-            + TABLE_CITY + " ( " +
+            + TABLE_NAME + " ( " +
             COLUMN_ID + " integer PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_NAME + " INTEGER NOT NULL, " +
             COLUMN_COUNTRY + " INTEGER NOT NULL, " +
@@ -52,7 +52,7 @@ public class CityDB extends SQLiteOpenHelper {
         Log.w(CityDB.class.getName(),
                 "Upgrading database from version " + oldVersion + " to "
                         + newVersion + ", which will destroy all old data");
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CITY);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         onCreate(db);
     }
 }

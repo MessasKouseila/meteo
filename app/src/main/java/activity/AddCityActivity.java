@@ -1,4 +1,4 @@
-package com.example.loubia.tp_meteo;
+package activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import model.City;
+import com.example.loubia.tp_meteo.R;
 
 public class AddCityActivity extends AppCompatActivity {
 

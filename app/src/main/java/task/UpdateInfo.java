@@ -1,7 +1,8 @@
-package com.example.loubia.tp_meteo;
+package task;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -12,6 +13,10 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.List;
 
+import activity.MainActivity;
+import model.City;
+import model.CityDAO;
+
 /**
  * Created by loubia on 23/10/17.
  */
@@ -21,11 +26,16 @@ public class UpdateInfo extends AsyncTask<List<City>, Integer, Void> {
     private Context contextApp;
     private ProgressBar ProgressBarApp;
     private CityDAO dataBase;
+    private List<City> listCity;
+    private ArrayAdapter<City> adapter;
 
-    public UpdateInfo(Context ctx, CityDAO bdd, ProgressBar pBar) {
+    public UpdateInfo(Context ctx, CityDAO bdd, ProgressBar pBar, List<City> list, ArrayAdapter<City> adapter) {
         this.contextApp = ctx;
         this.ProgressBarApp = pBar;
         this.dataBase = bdd;
+        this.listCity = list;
+        this.adapter = adapter;
+
     }
 
     @Override
@@ -62,7 +72,7 @@ public class UpdateInfo extends AsyncTask<List<City>, Integer, Void> {
                     this.dataBase.updateCity(c);
                 } else {
                     // je supprime la ville si elle n'existe pas
-                    MainActivity.listCity.remove(c);
+                    this.listCity.remove(c);
                     this.dataBase.deleteCity(c);
                 }
                 progress = progress + (100 / cities[0].size());
@@ -86,6 +96,6 @@ public class UpdateInfo extends AsyncTask<List<City>, Integer, Void> {
     protected void onPostExecute(Void result) {
         Toast.makeText(this.contextApp, "Synchronisation Términé", Toast.LENGTH_SHORT).show();
         // on notify des changements sur la list
-        MainActivity.adapter.notifyDataSetChanged();
+        this.adapter.notifyDataSetChanged();
     }
 }

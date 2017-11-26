@@ -1,4 +1,4 @@
-package com.example.loubia.tp_meteo;
+package task;
 
 
 import android.annotation.TargetApi;

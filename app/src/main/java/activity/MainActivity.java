@@ -1,12 +1,9 @@
-package com.example.loubia.tp_meteo;
+package activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,24 +15,20 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import model.City;
+import model.CityDAO;
+import com.example.loubia.tp_meteo.R;
+import task.UpdateInfo;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
 
-    static protected List<City> listCity = new ArrayList<City>(256);
-    static protected ArrayAdapter<City> adapter = null;
-    static protected CityDAO dataSource;
+    protected List<City> listCity = new ArrayList<City>(256);
+    protected ArrayAdapter<City> adapter = null;
+    protected CityDAO dataSource;
 
     private ListView mListView;
     private UpdateInfo updateWeather;
@@ -116,8 +109,8 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         if (id == R.id.action_refresh) {
-            updateWeather = new UpdateInfo(getApplicationContext(), dataSource, mProgressBar);
-            updateWeather.execute(MainActivity.listCity);
+            updateWeather = new UpdateInfo(getApplicationContext(), dataSource, mProgressBar, this.listCity, this.adapter);
+            updateWeather.execute(this.listCity);
             return true;
         }
 

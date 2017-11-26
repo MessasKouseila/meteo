@@ -1,4 +1,4 @@
-package com.example.loubia.tp_meteo;
+package model;
 
 /**
  * Created by loubia on 22/10/17.
@@ -13,7 +13,8 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.R.attr.id;
+import model.City;
+import model.CityDB;
 
 public class CityDAO {
 
@@ -53,11 +54,12 @@ public class CityDAO {
         values.put(CityDB.COLUMN_WIND_DIRECTION, city.getWindDirection());
         values.put(CityDB.COLUMN_AIR_TEMPERATURE, city.getAirTemperature());
 
-        return database.insert(CityDB.TABLE_CITY, null, values) > -1;
+        return database.insert(CityDB.TABLE_NAME, null, values) > -1;
     }
+
     public boolean contains(City city) {
-        Cursor cursor = database.rawQuery("SELECT count(*) FROM "+ CityDB.TABLE_CITY
-                + " WHERE name = '" + city.getName() +"' AND country = '" + city.getCountry() + "'", null);
+        Cursor cursor = database.rawQuery("SELECT count(*) FROM " + CityDB.TABLE_NAME
+                + " WHERE name = '" + city.getName() + "' AND country = '" + city.getCountry() + "'", null);
         if (cursor.moveToFirst()) {
             return cursor.getInt(0) > 0;
         } else {
@@ -67,7 +69,7 @@ public class CityDAO {
 
     public boolean deleteCity(City city) {
         long id = city.getId();
-        return database.delete(CityDB.TABLE_CITY, CityDB.COLUMN_ID
+        return database.delete(CityDB.TABLE_NAME, CityDB.COLUMN_ID
                 + " = " + id, null) > 0;
     }
 
@@ -81,13 +83,13 @@ public class CityDAO {
         values.put(CityDB.COLUMN_WIND_DIRECTION, city.getWindDirection());
         values.put(CityDB.COLUMN_AIR_TEMPERATURE, city.getAirTemperature());
 
-        return database.update(CityDB.TABLE_CITY, values, "_id=" + city.getId(), null) > 0 ;
+        return database.update(CityDB.TABLE_NAME, values, "_id=" + city.getId(), null) > 0;
     }
 
     public List<City> getAllCity() {
         List<City> citys = new ArrayList<City>();
 
-        Cursor cursor = database.query(CityDB.TABLE_CITY,
+        Cursor cursor = database.query(CityDB.TABLE_NAME,
                 allColumns, null, null, null, null, null);
 
         cursor.moveToFirst();
