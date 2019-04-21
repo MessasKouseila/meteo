@@ -13,10 +13,6 @@ import android.util.Log;
 import main.model.WeatherProvider;
 
 
-/**
- * Created by hicham on 26/11/2017.
- */
-
 public class AuthentificatorService extends Service {
 
     public static final String ACCOUNT = "WeOne";
